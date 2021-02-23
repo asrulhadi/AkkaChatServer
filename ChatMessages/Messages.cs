@@ -6,9 +6,12 @@
 //-----------------------------------------------------------------------
 
 using Akka.Actor;
+using System.Collections.Generic;
+using Teknomatrik.SysMan.Models;
 
-namespace ChatMessages
+namespace Teknomatrik.SysMan.Messages
 {
+    /* original - Not Used
     public class ConnectRequest
     {
         public string Username { get; set; }
@@ -41,5 +44,49 @@ namespace ChatMessages
     {
         public string Username { get; set; }
         public string Text { get; set; }
+    }
+    */
+    public class StatusRequest
+    {
+        public string StationName { get; set; }
+    }
+
+    public class StatusResponse
+    {
+        public string StationName { get; set; }
+        public StationStatus StationStatus { get; set; }
+    }
+
+    public class HostRequest
+    {
+        public string StationName { get; set; }
+    }
+
+    public class HostResponse
+    {
+        public string StationName { get; set; }
+        public List<Host> StationHosts { get; set; }
+    }
+
+    public class ProcessRequest
+    {
+        public string HostName { get; set; }
+    }
+
+    public class ProcessResponse
+    {
+        public string HostName { get; set; }
+        public List<Process> HostProcesses { get; set; }
+    }
+
+    public class StationRequest
+    {
+        public StationRequest() { }
+    }
+
+    public class StationResponse
+    {
+        //public List<Station> StationList { get; set; }
+        public Station Station { get; set; }
     }
 }

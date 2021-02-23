@@ -11,8 +11,6 @@ using Akka.Actor;
 using Akka.Configuration;
 using Akka.Event;
 using Akka.Remote;
-using Akka.Remote.Transport;
-using ChatMessages;
 
 // <summary>
 // apa yang berlaku
@@ -47,7 +45,7 @@ using ChatMessages;
 // [INFO][2/18/2021 1:50:05 AM][Thread 0013][akka.tcp://MyServer@10.30.12.13:8081/system/endpointManager/reliableEndpointWriter-akka.tcp%3A%2F%2FMyClient%40localhost%3A25344-1] Removing receive buffers for [akka.tcp://MyServer@10.30.12.13:8081]->[akka.tcp://MyClient@localhost:25344]
 #endregion
 
-namespace ChatServer
+namespace Teknomatrik.SysMan
 {
     class Program
     {
@@ -82,7 +80,6 @@ akka {
             } while (true);
         }
     }
-
     class ServerSupervisor : ReceiveActor, ILogReceive
     {
         IActorRef server;
@@ -119,6 +116,8 @@ akka {
 
         public ChatServerActor()
         {
+            #region OriginalChatMessage
+            /* Not Used Anymore    
             Receive<SayRequest>(message =>
             {
                 var response = new SayResponse
@@ -153,6 +152,8 @@ akka {
 
                 foreach (var client in _clients) client.Tell(response, Self);
             });
+            */
+            #endregion
 
             Receive<Terminated>(t => 
             {

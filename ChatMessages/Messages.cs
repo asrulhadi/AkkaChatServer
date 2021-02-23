@@ -89,4 +89,9 @@ namespace Teknomatrik.SysMan.Messages
         //public List<Station> StationList { get; set; }
         public Station Station { get; set; }
     }
+
+    public class Response
+    {
+        public string Message { get; set; }
+    }
 }

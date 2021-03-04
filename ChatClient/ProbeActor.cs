@@ -2,7 +2,6 @@
 using Akka.Event;
 using Akka.Remote;
 using Akka.Configuration;
-using ChatMessages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +10,8 @@ using System.Threading.Tasks;
 using ReactiveUI.Fody.Helpers;
 using ReactiveUI;
 using System.Net;
+
+using Teknomatrik.SysMan.Messages;
 
 namespace ChatClient
 {
@@ -70,10 +71,12 @@ akka {
                 Console.WriteLine("*** Start of sending probe");
                 do
                 {
+                    /*
                     probeClient.Tell(new SayRequest()
                     {
                         Text = $"Probe no {count}",
                     });
+                    */
                     Console.Write(".");
                     count++;
                     Thread.Sleep(1000);
@@ -110,9 +113,10 @@ akka {
         public ProbeClientActor(string ip = "10.30.12.13", int port = 8081, string user = "localuser", ProbeActor _prog = null)
         {
             prog = _prog;
-            _server = Context.ActorSelection($"akka.tcp://MyServer@{ip}:{port}/user/ChatServer");
+            _server = Context.ActorSelection($"akka.tcp://MyServer@{ip}:{port}/user/{user}");
 
             #region Message Processing
+            /*
             Receive<ConnectRequest>(cr =>
             {
                 _server.Tell(cr);
@@ -136,6 +140,18 @@ akka {
             Receive<SayResponse>(srsp =>
             {
                 //Console.WriteLine("{0}: {1}", srsp.Username, srsp.Text);
+            });
+            */
+            #endregion
+            #region SysManMessage
+            Receive<StationResponse>(r => 
+            {
+                Console.WriteLine($"Station Response received: {r.Station.StationName} {r.Station.Status}");
+                if (r.Station.Hosts is object)
+                    foreach (var host in r.Station.Hosts)
+                    {
+                        Console.WriteLine($"Host {host.HostName} {host.Status}");
+                    }
             });
             #endregion
 
@@ -170,11 +186,12 @@ akka {
             Context.System.EventStream.Subscribe<AssociatedEvent>(Self);
             Receive<AssociatedEvent>(e =>
             {
-                //Console.WriteLine($"Associated Event {e.LocalAddress} {e.RemoteAddress}");
-                //Console.WriteLine("Calling OnConnected Function");
+                //Console.writeline($"associated event {e.localaddress} {e.remoteaddress}");
+                //console.WriteLine($"Calling OnConnected Function : {Sender.Path}");
                 Context.System.EventStream.Subscribe<DisassociatedEvent>(Self);
                 Context.System.EventStream.Subscribe<AssociationErrorEvent>(Self);
                 prog.Connected = true;
+                serverRef.Tell(new StationRequest());
             });
 
             // Quarantined

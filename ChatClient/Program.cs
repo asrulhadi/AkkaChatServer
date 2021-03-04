@@ -9,7 +9,6 @@ using Akka.Actor;
 using Akka.Configuration;
 using Akka.Event;
 using Akka.Remote;
-using ChatMessages;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -47,12 +46,14 @@ namespace ChatClient
             do
             {
                 // execute client
-                foreach (var port in new int[]{ 8081, 8082 })
+                foreach (var kv in new Dictionary<int,string>(){ [8081]="INSTRUCTOR1", [8082]="INSTRUCTOR2" })
                 {
+                    var port = kv.Key;
+                    var name = kv.Value;
                     if (!tasks.ContainsKey(port))
                     {
-                        IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("10.30.12.13"),port);
-                        tasks[port] = (new Program(endpoint, args.Length < 1 ? "dev2" : args[0])).RunMe();
+                        IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("10.30.12.13"), port);
+                        tasks[port] = (new Program(endpoint, name)).RunMe();
                     }
                 }
                 // wait for one to terminate
@@ -107,44 +108,6 @@ namespace ChatClient
         }
         public void StartReading()
         {
-            while (true)
-            {
-                var input = Console.ReadLine();
-                if (input.StartsWith("/"))
-                {
-                    var parts = input.Split(' ');
-                    var cmd = parts[0].ToLowerInvariant();
-                    var rest = string.Join(" ", parts.Skip(1));
-
-                    if (cmd == "/nick")
-                    {
-                        chatClient.Tell(new NickRequest
-                        {
-                            NewUsername = rest
-                        });
-                    }
-                    if (cmd == "/exit")
-                    {
-                        Console.WriteLine("exiting");
-                        break;
-                    }
-                    if (cmd == "/recreate")
-                    {
-                        CreateNewClient();
-                    }
-                }
-                else
-                {
-                    chatClient.Tell(new SayRequest()
-                    {
-                        Text = input,
-                    });
-                }
-            }
-            Console.WriteLine("Finish Client");
-            Context.Stop(chatClient);
-            Context.Stop(Self);
-            Context.System.Terminate();
         }
     }
 
